@@ -3,17 +3,19 @@
 Backend-приложение, которое презентует специалиста: профиль, навыки, опыт работы,
 проекты и профессиональные ссылки. Всё доступно через GraphQL и Apollo Sandbox.
 
+**Живая версия:** https://pismo.alwaysdata.net/cutaway/graphql
+
 ## Стек
 
-| Слой | Технологии |
-|------|------------|
-| Язык | TypeScript 5.9, Node.js 24 |
-| Фреймворк | NestJS 11 |
-| API | GraphQL (code-first), Apollo Server 5, Apollo Sandbox |
-| ORM / БД | Prisma 7 (driver adapter `@prisma/adapter-pg`), PostgreSQL 16 |
-| Тесты | Jest 30 + ts-jest, 35 тестов, e2e на реальном PostgreSQL |
-| Запуск | Docker Compose: `db` + `app`, отдельный профиль `test` |
-| Качество | ESLint 10, Prettier, `npm audit`, скрипт проверки безопасности |
+| Слой      | Технологии                                                     |
+| --------- | -------------------------------------------------------------- |
+| Язык      | TypeScript 5.9, Node.js 24                                     |
+| Фреймворк | NestJS 11                                                      |
+| API       | GraphQL (code-first), Apollo Server 5, Apollo Sandbox          |
+| ORM / БД  | Prisma 7 (driver adapter `@prisma/adapter-pg`), PostgreSQL 16  |
+| Тесты     | Jest 30 + ts-jest, 35 тестов, e2e на реальном PostgreSQL       |
+| Запуск    | Docker Compose: `db` + `app`, отдельный профиль `test`         |
+| Качество  | ESLint 10, Prettier, `npm audit`, скрипт проверки безопасности |
 
 ## Запуск
 
@@ -25,12 +27,12 @@ Backend-приложение, которое презентует специал
 healthcheck и показывает адреса. `Ctrl+C` останавливает контейнеры, данные БД
 остаются в volume `cutaway_pgdata`.
 
-| Что | Адрес |
-|-----|-------|
-| Apollo Sandbox | http://localhost:3001/graphql |
-| GraphQL API | http://localhost:3001/graphql (POST) |
-| Healthcheck | http://localhost:3001/health |
-| PostgreSQL | `localhost:5434`, БД/пользователь/пароль — `cutaway` |
+| Что            | Адрес                                                |
+| -------------- | ---------------------------------------------------- |
+| Apollo Sandbox | http://localhost:3001/graphql                        |
+| GraphQL API    | http://localhost:3001/graphql (POST)                 |
+| Healthcheck    | http://localhost:3001/health                         |
+| PostgreSQL     | `localhost:5434`, БД/пользователь/пароль — `cutaway` |
 
 При каждом старте контейнер `app` выполняет `prisma migrate deploy` и идемпотентный
 сид. Отдельно готовить базу не нужно.
@@ -57,16 +59,31 @@ query Card {
     headline
     description
     location
-    contacts { kind label url }
-    skills { name category level }
+    contacts {
+      kind
+      label
+      url
+    }
+    skills {
+      name
+      category
+      level
+    }
     experience {
       company
       position
       startDate
       endDate
-      achievements { text }
+      achievements {
+        text
+      }
     }
-    projects { slug name url tags }
+    projects {
+      slug
+      name
+      url
+      tags
+    }
   }
 }
 ```
@@ -85,19 +102,21 @@ query Project($slug: String!) {
 query AllCards {
   profiles {
     slug
-    skills { name }
+    skills {
+      name
+    }
   }
 }
 ```
 
-| Тип | Поля |
-|-----|------|
-| `Profile` | `id`, `slug`, `name`, `headline`, `description`, `location`, `email`, `avatarUrl`, `contacts`, `skills`, `experience`, `projects` |
-| `Contact` | `id`, `kind`, `label`, `url` |
-| `Skill` | `id`, `name`, `category`, `level` |
-| `Experience` | `id`, `company`, `position`, `startDate`, `endDate`, `location`, `summary`, `achievements` |
-| `Achievement` | `id`, `text` |
-| `Project` | `id`, `slug`, `name`, `description`, `url`, `repositoryUrl`, `startedAt`, `tags` |
+| Тип           | Поля                                                                                                                              |
+| ------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `Profile`     | `id`, `slug`, `name`, `headline`, `description`, `location`, `email`, `avatarUrl`, `contacts`, `skills`, `experience`, `projects` |
+| `Contact`     | `id`, `kind`, `label`, `url`                                                                                                      |
+| `Skill`       | `id`, `name`, `category`, `level`                                                                                                 |
+| `Experience`  | `id`, `company`, `position`, `startDate`, `endDate`, `location`, `summary`, `achievements`                                        |
+| `Achievement` | `id`, `text`                                                                                                                      |
+| `Project`     | `id`, `slug`, `name`, `description`, `url`, `repositoryUrl`, `startedAt`, `tags`                                                  |
 
 `Query`: `profile`, `profiles`, `project(slug)`. Мутаций нет: визитка — публичный
 read-only ресурс, поэтому в приложении нет аутентификации и поверхности для записи.
@@ -209,16 +228,16 @@ DataLoader даёт стабильное число запросов, дедуп
 Скрипт поднимает `db`, создаёт `cutaway_test`, собирает test-образ и запускает
 unit + e2e с покрытием. HTML-отчёт: `coverage/lcov-report/index.html`.
 
-| Набор | Тестов | Что проверяет |
-|-------|--------|----------------|
-| Unit | 21 | бизнес-правила сервиса, пакетную загрузку, health, настройки GraphQL/CORS, целостность сида |
-| E2E | 14 | вложенный GraphQL-запрос, сортировки, `project(slug)`, ошибка без профиля, идемпотентность сида, отсутствие N+1, заголовки безопасности, Sandbox, отсутствие мутаций, CORS |
+| Набор | Тестов | Что проверяет                                                                                                                                                              |
+| ----- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit  | 21     | бизнес-правила сервиса, пакетную загрузку, health, настройки GraphQL/CORS, целостность сида                                                                                |
+| E2E   | 14     | вложенный GraphQL-запрос, сортировки, `project(slug)`, ошибка без профиля, идемпотентность сида, отсутствие N+1, заголовки безопасности, Sandbox, отсутствие мутаций, CORS |
 
 Покрытие `src/` (без сгенерированного клиента и bootstrap-файлов):
 
-| Statements | Branches | Functions | Lines |
-|------------|----------|-----------|-------|
-| 95.28% | 76.74% | 93.58% | 94.65% |
+| Statements | Branches | Functions | Lines  |
+| ---------- | -------- | --------- | ------ |
+| 95.28%     | 76.74%   | 93.58%    | 94.65% |
 
 Локально без Docker и PostgreSQL можно запустить только unit:
 
@@ -271,13 +290,13 @@ npm run build
 
 ## Конфигурация
 
-| Переменная | По умолчанию | Назначение |
-|------------|--------------|------------|
-| `DATABASE_URL` | — | строка подключения PostgreSQL (обязательна) |
-| `PORT` | `3001` | порт HTTP-сервера |
-| `GRAPHQL_INTROSPECTION` | `true` | introspection; `false` также отключает Sandbox |
-| `GRAPHQL_SANDBOX` | `true` | страница Apollo Sandbox |
-| `CORS_ORIGINS` | `*` | список origin'ов через запятую или `*` |
+| Переменная              | По умолчанию | Назначение                                     |
+| ----------------------- | ------------ | ---------------------------------------------- |
+| `DATABASE_URL`          | —            | строка подключения PostgreSQL (обязательна)    |
+| `PORT`                  | `3001`       | порт HTTP-сервера                              |
+| `GRAPHQL_INTROSPECTION` | `true`       | introspection; `false` также отключает Sandbox |
+| `GRAPHQL_SANDBOX`       | `true`       | страница Apollo Sandbox                        |
+| `CORS_ORIGINS`          | `*`          | список origin'ов через запятую или `*`         |
 
 ## Запуск без контейнера приложения
 
@@ -301,30 +320,35 @@ npm run start:dev
 
 ## Деплой на shared-хостинг (alwaysdata)
 
-Приложение не требует Docker в runtime: Node.js-сайт запускает `node dist/main.js`,
-а PostgreSQL берётся у хостинга.
+Текущий стенд: **https://pismo.alwaysdata.net/cutaway/graphql**. Он живёт
+отдельным Node.js-сайтом по пути `/cutaway/`, поэтому основной сайт
+`pismo.alwaysdata.net` (calendar) не затрагивается.
+
+Приложение не требует Docker в runtime: сайт запускает `node dist/main.js`,
+а PostgreSQL берётся у хостинга. Хостинг передаёт `PORT` и ожидает IPv6-сокет
+`::`; приложение слушает `process.env.HOST ?? '::'`.
+
+Сайт типа **Node.js** в панели:
+
+| Параметр        | Значение                                                                                                                |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Адрес           | `pismo.alwaysdata.net/cutaway/`                                                                                         |
+| `path_trim`     | включён (приложение видит пути без `/cutaway`)                                                                          |
+| Команда         | `node dist/main.js`                                                                                                     |
+| Рабочий каталог | `cutaway`                                                                                                               |
+| Node.js         | 24                                                                                                                      |
+| Переменные      | `DATABASE_URL=...`, `NODE_ENV=production`, `GRAPHQL_INTROSPECTION=true`, `GRAPHQL_SANDBOX=true`, `CHECKPOINT_DISABLE=1` |
+
+Повторный деплой (сборка и production-зависимости готовятся локально, потому
+что на shared-хостинге срабатывает лимит памяти на `npm ci`):
 
 ```bash
-git clone https://github.com/nyuskov/cutaway.git ~/cutaway
-cd ~/cutaway
-npm ci
-DATABASE_URL="postgresql://..." npx prisma generate
-DATABASE_URL="postgresql://..." npm run db:migrate
-DATABASE_URL="postgresql://..." npm run db:seed
-npm run build
+ALWAYSDATA_REMOTE=pismo@ssh-pismo.alwaysdata.net ./scripts/deploy-alwaysdata.sh
 ```
 
-В панели создаётся сайт типа **Node.js**:
-
-| Параметр | Значение |
-|----------|----------|
-| Команда | `node dist/main.js` |
-| Рабочий каталог | `cutaway` |
-| Переменные | `DATABASE_URL=...`, `NODE_ENV=production`, `GRAPHQL_INTROSPECTION=true`, `GRAPHQL_SANDBOX=true`, `CHECKPOINT_DISABLE=1` |
-
-Хостинг передаёт `PORT` и ожидает IPv6-сокет `::` — приложение уже слушает
-`process.env.HOST ?? '::'`. Миграции и сид запускаются вручную после деплоя
-(или вручную из SSH), контейнерный entrypoint для этого не нужен.
+Скрипт собирает `dist`, ставит production-зависимости во временный каталог,
+загружает бандл по SSH и применяет миграции с сидом. На сервере в
+`~/cutaway/.env` должен лежать `DATABASE_URL`; сам файл не коммитится.
 
 ## Ограничения и дальнейшие шаги
 
