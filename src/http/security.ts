@@ -52,5 +52,8 @@ export function buildHelmetOptions(): HelmetOptions {
       },
     },
     crossOriginEmbedderPolicy: false,
+    // Apollo Sandbox logs in through a popup that posts the result back to
+    // window.opener. `same-origin` severs that reference, so allow popups.
+    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
   };
 }

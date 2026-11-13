@@ -24,7 +24,7 @@ describe('API security (e2e)', () => {
     expect(response.headers['x-content-type-options']).toBe('nosniff');
     expect(response.headers['x-frame-options']).toBe('SAMEORIGIN');
     expect(response.headers['referrer-policy']).toBe('no-referrer');
-    expect(response.headers['cross-origin-opener-policy']).toBe('same-origin');
+    expect(response.headers['cross-origin-opener-policy']).toBe('same-origin-allow-popups');
     expect(response.headers['content-security-policy']).toContain("default-src 'self'");
     expect(response.headers['x-powered-by']).toBeUndefined();
     expect(response.body).toMatchObject({ status: 'ok', database: 'up' });
