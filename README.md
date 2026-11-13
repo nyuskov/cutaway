@@ -13,7 +13,7 @@ Backend-приложение, которое презентует специал
 | Фреймворк | NestJS 11                                                      |
 | API       | GraphQL (code-first), Apollo Server 5, Apollo Sandbox          |
 | ORM / БД  | Prisma 7 (driver adapter `@prisma/adapter-pg`), PostgreSQL 16  |
-| Тесты     | Jest 30 + ts-jest, 35 тестов, e2e на реальном PostgreSQL       |
+| Тесты     | Jest 30 + ts-jest, 36 тестов, e2e на реальном PostgreSQL       |
 | Запуск    | Docker Compose: `db` + `app`, отдельный профиль `test`         |
 | Качество  | ESLint 10, Prettier, `npm audit`, скрипт проверки безопасности |
 
@@ -54,6 +54,10 @@ docker compose up -d --build
 готовый запрос `MyCard`. Если браузер сохранил старую сессию Sandbox и показывает
 `ExampleQuery`, очистите данные сайта `sandbox.embed.apollographql.com` или
 откройте приватное окно.
+
+Небольшой кастомный драйвер (`sandbox-apollo.driver.ts`) убирает landing page,
+который Nest добавляет по умолчанию, чтобы страница Apollo Sandbox выбиралась
+явно и не конфликтовала с плагином Nest.
 
 ```graphql
 query Card {
@@ -234,13 +238,13 @@ unit + e2e с покрытием. HTML-отчёт: `coverage/lcov-report/index.h
 | Набор | Тестов | Что проверяет                                                                                                                                                              |
 | ----- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Unit  | 21     | бизнес-правила сервиса, пакетную загрузку, health, настройки GraphQL/CORS, целостность сида                                                                                |
-| E2E   | 14     | вложенный GraphQL-запрос, сортировки, `project(slug)`, ошибка без профиля, идемпотентность сида, отсутствие N+1, заголовки безопасности, Sandbox, отсутствие мутаций, CORS |
+| E2E   | 15     | вложенный GraphQL-запрос, сортировки, `project(slug)`, ошибка без профиля, идемпотентность сида, отсутствие N+1, заголовки безопасности, Sandbox, отсутствие мутаций, CORS |
 
 Покрытие `src/` (без сгенерированного клиента и bootstrap-файлов):
 
 | Statements | Branches | Functions | Lines  |
 | ---------- | -------- | --------- | ------ |
-| 95.28%     | 76.74%   | 93.58%    | 94.65% |
+| 95.41%     | 76.74%   | 93.67%    | 94.76% |
 
 Локально без Docker и PostgreSQL можно запустить только unit:
 
@@ -276,7 +280,8 @@ npm run build
 Что включено в приложении:
 
 - Helmet: CSP (разрешены только источники, нужные Apollo Sandbox), `nosniff`,
-  `SAMEORIGIN`, `no-referrer`, COOP; заголовок `X-Powered-By` отключён.
+  `SAMEORIGIN`, `no-referrer`; COOP `same-origin-allow-popups`, чтобы работал
+  popup-вход в Apollo Sandbox; заголовок `X-Powered-By` отключён.
 - CORS с настраиваемым allow-list (`CORS_ORIGINS`), по умолчанию отражает origin.
 - `GRAPHQL_INTROSPECTION=false` полностью отключает introspection и Sandbox.
 - Ограничение глубины GraphQL-документа (15) — защита от патологических запросов.
