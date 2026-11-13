@@ -9,7 +9,8 @@ async function bootstrap(): Promise<void> {
   configureApp(app);
 
   const port = Number(process.env.PORT ?? 3001);
-  await app.listen(port, '0.0.0.0');
+  // `::` keeps Node dual-stack: IPv4 locally and IPv6 on shared hosting.
+  await app.listen(port, process.env.HOST ?? '::');
 
   Logger.log('Apollo Sandbox: /graphql', 'Bootstrap');
   Logger.log('Healthcheck:    /health', 'Bootstrap');

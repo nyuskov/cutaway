@@ -299,6 +299,33 @@ npm run db:setup
 npm run start:dev
 ```
 
+## Деплой на shared-хостинг (alwaysdata)
+
+Приложение не требует Docker в runtime: Node.js-сайт запускает `node dist/main.js`,
+а PostgreSQL берётся у хостинга.
+
+```bash
+git clone https://github.com/nyuskov/cutaway.git ~/cutaway
+cd ~/cutaway
+npm ci
+DATABASE_URL="postgresql://..." npx prisma generate
+DATABASE_URL="postgresql://..." npm run db:migrate
+DATABASE_URL="postgresql://..." npm run db:seed
+npm run build
+```
+
+В панели создаётся сайт типа **Node.js**:
+
+| Параметр | Значение |
+|----------|----------|
+| Команда | `node dist/main.js` |
+| Рабочий каталог | `cutaway` |
+| Переменные | `DATABASE_URL=...`, `NODE_ENV=production`, `GRAPHQL_INTROSPECTION=true`, `GRAPHQL_SANDBOX=true`, `CHECKPOINT_DISABLE=1` |
+
+Хостинг передаёт `PORT` и ожидает IPv6-сокет `::` — приложение уже слушает
+`process.env.HOST ?? '::'`. Миграции и сид запускаются вручную после деплоя
+(или вручную из SSH), контейнерный entrypoint для этого не нужен.
+
 ## Ограничения и дальнейшие шаги
 
 - Мутации и аутентификация не добавлены осознанно: визитка публичная и read-only.
