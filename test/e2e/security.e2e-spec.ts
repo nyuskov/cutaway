@@ -44,6 +44,7 @@ describe('API security (e2e)', () => {
 
     expect(response.headers['content-type']).toContain('text/html');
     expect(response.text).toContain('Apollo Sandbox');
+    expect(response.text).toContain('MyCard');
   });
 
   it('enables introspection, which the public card needs', async () => {

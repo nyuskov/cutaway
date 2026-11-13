@@ -9,6 +9,28 @@ import depthLimit from 'graphql-depth-limit';
  */
 export const MAX_QUERY_DEPTH = 15;
 
+/** Pre-filled in Sandbox so the card can be read without writing a query. */
+export const PROFILE_CARD_DOCUMENT = `query MyCard {
+  profile {
+    name
+    headline
+    description
+    location
+    email
+    contacts { label url }
+    skills { name category level }
+    experience {
+      company
+      position
+      startDate
+      endDate
+      location
+      achievements { text }
+    }
+    projects { name description url tags }
+  }
+}`;
+
 export interface GraphQLSecurityOptions {
   introspection: boolean;
   sandbox: boolean;
@@ -36,7 +58,10 @@ export function buildApolloOptions(
     validationRules: [depthLimit(MAX_QUERY_DEPTH)],
     plugins: [
       security.sandbox
-        ? ApolloServerPluginLandingPageLocalDefault({ embed: { runTelemetry: false } })
+        ? ApolloServerPluginLandingPageLocalDefault({
+            embed: { runTelemetry: false },
+            document: PROFILE_CARD_DOCUMENT,
+          })
         : ApolloServerPluginLandingPageDisabled(),
     ],
   };

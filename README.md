@@ -50,7 +50,8 @@ docker compose up -d --build
 ## GraphQL
 
 Схема создаётся кодом (`autoSchemaFile`), поэтому модели, enum'ы и описания
-полей живут рядом с резолверами и проверяются TypeScript.
+полей живут рядом с резолверами и проверяются TypeScript. В Sandbox уже подставлен
+готовый запрос `MyCard` — достаточно нажать Run.
 
 ```graphql
 query Card {
