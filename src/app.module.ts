@@ -1,6 +1,7 @@
 import { ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
+import { AppController } from './app.controller';
 import { PrismaModule } from './database/prisma.module';
 import { GraphQLContext } from './graphql/graphql.context';
 import { buildApolloOptions, resolveGraphQLSecurity } from './graphql/graphql.config';
@@ -26,5 +27,6 @@ import { ProfileModule } from './profile/profile.module';
     ProfileModule,
     HealthModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}

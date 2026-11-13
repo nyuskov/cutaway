@@ -30,6 +30,12 @@ describe('API security (e2e)', () => {
     expect(response.body).toMatchObject({ status: 'ok', database: 'up' });
   });
 
+  it('redirects the site root to Sandbox', async () => {
+    const response = await request(app.getHttpServer()).get('/').expect(302);
+
+    expect(response.headers.location).toBe('graphql');
+  });
+
   it('serves Apollo Sandbox for browsers', async () => {
     const response = await request(app.getHttpServer())
       .get('/graphql')
