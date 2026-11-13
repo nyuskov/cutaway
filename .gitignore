@@ -22,3 +22,14 @@ lerna-debug.log*
 # temp directory
 .temp
 .tmp
+
+# Prisma generated client
+/src/generated
+
+# tests
+/coverage
+*.tsbuildinfo
+
+# IDE / OS
+.idea
+.DS_Store

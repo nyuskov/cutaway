@@ -1,0 +1,64 @@
+name: cutaway
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cutaway
+      POSTGRES_USER: cutaway
+      POSTGRES_PASSWORD: cutaway
+      TZ: UTC
+    ports:
+      - "5434:5432"
+    volumes:
+      - cutaway_pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cutaway -d cutaway"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  app:
+    image: cutaway-app:latest
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://cutaway:cutaway@db:5432/cutaway?schema=public
+      PORT: 3000
+      NODE_ENV: production
+      CHECKPOINT_DISABLE: "1"
+      GRAPHQL_INTROSPECTION: "true"
+      GRAPHQL_SANDBOX: "true"
+      CORS_ORIGINS: "*"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3001:3000"
+
+  test:
+    profiles: ["test"]
+    image: cutaway-test:latest
+    build:
+      context: .
+      target: test
+    environment:
+      DATABASE_URL: postgresql://cutaway:cutaway@db:5432/cutaway_test?schema=public
+      NODE_ENV: test
+      TZ: UTC
+      CHECKPOINT_DISABLE: "1"
+    volumes:
+      - ./coverage:/app/coverage
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "./node_modules/.bin/prisma migrate deploy &&
+             npm run test:cov"
+
+volumes:
+  cutaway_pgdata:
